@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Usuário - Gestão de Almoxarifado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body class="font-inter bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800">Painel do Usuário</h1>
+            <div class="flex items-center space-x-4">
+                <button id="notificationsBtn" class="relative p-2 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span id="notificationBadge" class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 hidden"></span>
+                </button>
+                <div class="flex items-center">
+                    <img src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=32&h=32&q=80" 
+                         class="h-8 w-8 rounded-full" alt="User profile">
+                    <span class="ml-2 text-sm font-medium text-gray-700">Usuário</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Search and Filters -->
+        <div class="card mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="w-full md:w-1/2">
+                    <div class="relative">
+                        <input type="text" id="itemSearch" placeholder="Buscar itens..." 
+                               class="input-field pl-10 w-full">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto">
+                    <select id="categoryFilter" class="input-field">
+                        <option value="">Todas Categorias</option>
+                        <option value="tools">Ferramentas</option>
+                        <option value="equipment">Equipamentos</option>
+                        <option value="materials">Materiais</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Items -->
+        <div class="card mb-8">
+            <h2 class="text-xl font-bold mb-4">Itens Disponíveis</h2>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Categoria</th>
+                            <th>Disponível</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="availableItemsTable">
+                        <!-- Items will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- My Requests -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">Minhas Solicitações</h2>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Status</th>
+                            <th>Data de Retirada</th>
+                            <th>Data de Devolução</th>
+                            <th>Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myRequestsTable">
+                        <!-- Requests will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Request Modal -->
+    <div id="requestModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Solicitar Empréstimo</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="requestForm">
+                    <input type="hidden" id="requestItemId">
+                    <div class="form-group">
+                        <label>Item</label>
+                        <input type="text" id="requestItemName" class="input-field" readonly>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label>Data de Retirada</label>
+                            <input type="date" id="requestStartDate" class="input-field" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Devolução</label>
+                            <input type="date" id="requestEndDate" class="input-field" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantidade</label>
+                        <input type="number" id="requestQuantity" min="1" class="input-field" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary modal-close">Cancelar</button>
+                        <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Details Modal -->
+    <div id="requestDetailsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalhes da Solicitação</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium">Item:</h4>
+                        <p id="detailItemName">-</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium">Status:</h4>
+                        <p id="detailStatus" class="badge">-</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-medium">Data de Retirada:</h4>
+                            <p id="detailStartDate">-</p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium">Data de Devolução:</h4>
+                            <p id="detailEndDate">-</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-medium">Quantidade:</h4>
+                        <p id="detailQuantity">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
