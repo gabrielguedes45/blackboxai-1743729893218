@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Itens do Estoque - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body class="font-inter bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800">Todos os Itens do Estoque</h1>
+            <a href="admin-dashboard.html" class="text-blue-600 hover:text-blue-500">
+                <i class="fas fa-arrow-left mr-1"></i> Voltar
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div class="card">
+            <!-- Filters -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div class="w-full md:w-auto">
+                    <div class="relative">
+                        <input type="text" placeholder="Buscar itens..." 
+                               class="input-field pl-10 w-full">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <select class="input-field">
+                        <option value="">Todas Categorias</option>
+                        <option>Ferramentas</option>
+                        <option>Equipamentos</option>
+                        <option>Materiais</option>
+                    </select>
+                    <select class="input-field">
+                        <option value="">Todos Status</option>
+                        <option>Disponível</option>
+                        <option>Emprestado</option>
+                        <option>Manutenção</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quick Add Item Button -->
+            <div class="mb-6">
+                <button onclick="openModal('addItemModal')" 
+                        class="btn-primary flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Adicionar Item
+                </button>
+            </div>
+
+            <!-- Items Table -->
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Categoria</th>
+                            <th>Status</th>
+                            <th>Quantidade</th>
+                            <th>Última Atualização</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Items will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Item Modal -->
+            <div id="addItemModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Adicionar Novo Item</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addItemForm">
+                            <div class="form-group">
+                                <label>Nome do Item</label>
+                                <input type="text" id="addItemName" class="input-field" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label>Quantidade</label>
+                                    <input type="number" id="addItemQuantity" class="input-field" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="addItemStatus" class="input-field" required>
+                                        <option value="available">Disponível</option>
+                                        <option value="borrowed">Emprestado</option>
+                                        <option value="maintenance">Manutenção</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria</label>
+                                <select id="addItemCategory" class="input-field" required>
+                                    <option value="tools">Ferramentas</option>
+                                    <option value="equipment">Equipamentos</option>
+                                    <option value="materials">Materiais</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Detalhes/Especificações</label>
+                                <textarea id="addItemDetails" class="input-field" rows="3"
+                                    placeholder="Informações técnicas, condições de uso, instruções..."></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secondary modal-close">Cancelar</button>
+                                <button type="submit" class="btn-primary">Adicionar Item</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inline Edit Modal -->
+            <div id="editItemModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Editar Item</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editItemForm">
+                            <input type="hidden" id="editItemId">
+                            <div class="form-group">
+                                <label>Nome do Item</label>
+                                <input type="text" id="editItemName" class="input-field" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label>Quantidade</label>
+                                    <input type="number" id="editItemQuantity" class="input-field" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="editItemStatus" class="input-field" required>
+                                        <option value="available">Disponível</option>
+                                        <option value="borrowed">Emprestado</option>
+                                        <option value="maintenance">Manutenção</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria</label>
+                                <select id="editItemCategory" class="input-field" required>
+                                    <option value="tools">Ferramentas</option>
+                                    <option value="equipment">Equipamentos</option>
+                                    <option value="materials">Materiais</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Detalhes/Especificações</label>
+                                <textarea id="editItemDetails" class="input-field" rows="3"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secondary modal-close">Cancelar</button>
+                                <button type="submit" class="btn-primary">Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6">
+                <span class="text-sm text-gray-500">Mostrando 1 a 10 de 25 itens</span>
+                <div class="flex gap-1">
+                    <button class="px-3 py-1 border rounded text-gray-500">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 border rounded bg-blue-100 text-blue-600">1</button>
+                    <button class="px-3 py-1 border rounded text-gray-500">2</button>
+                    <button class="px-3 py-1 border rounded text-gray-500">3</button>
+                    <button class="px-3 py-1 border rounded text-gray-500">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
